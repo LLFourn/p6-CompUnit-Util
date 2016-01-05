@@ -88,7 +88,7 @@ sub re-exporthow($handle is copy) is export(:re-export){
     }
 }
 
-sub steal-EXPORT-sub($handle is copy) is export(:re-export){
+sub steal-export-sub($handle is copy) is export(:re-export){
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     $handle .= &handle;
     if my $EXPORT  = $handle.export-sub {
@@ -108,6 +108,6 @@ sub re-export-everything($_ is copy) is export(:re-export) {
     $_ .= &handle;
     .&re-export;
     .&re-exporthow;
-    .&steal-EXPORT-sub;
+    .&steal-export-sub;
     .&steal-globalish;
 }

@@ -1,7 +1,5 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
-**Table of Contents**  *generated with [DocToc](https://github.com/thlorenz/doctoc)*
-
 - [CompUnit::Util](#compunitutil)
   - [Utilities](#utilities)
     - [load](#load)
@@ -20,7 +18,7 @@
 
 # CompUnit::Util
 
-Utility functions for introspecting `CompUnit`s and re-exporting their symbols
+Utility functions for introspecting `CompUnit`s and re-exporting their symbols.
 
 Apart from `load` none of the routines here will load a compunit. All
 parameters called `$handle` will converted to a `CompUnit::Handle`
@@ -37,13 +35,14 @@ break without warning
 `(Str:D $short-name,*%opts --> CompUnit:D)`
 
 ``` perl6
-    use CompUnit::Util :load;
-    my CompUnit $cu = load('Test');
-    # or even
-    my $cu = load('MyModule', version => v3);
+use CompUnit::Util :load;
+my CompUnit $cu = load('Test');
+# or even
+my $cu = load('MyModule', version => v3);
 ```
 
-loads a compunit by name. All named arguments to
+
+Loads a compunit by name. All named arguments to
 `CompUnit::DependencySpecification` are accepted (other
 than `short-name` which is the positional argument).
 
@@ -51,9 +50,9 @@ than `short-name` which is the positional argument).
 `($match --> CompUnit)`
 
 ``` perl6
-    use CompUnit::Util :find-loaded;
-    need SomeModule;
-    my CompUnit $some-module = find-loaded('SomeModule');
+use CompUnit::Util :find-loaded;
+need SomeModule;
+my CompUnit $some-module = find-loaded('SomeModule');
 ```
 
 Searches all the `CompUnit::Repository`s until it finds a loaded
@@ -62,8 +61,8 @@ compunit matching `$match`. Returns a failure otherwise.
 ### all-loaded
 
 ```perl6
-    use CompUnit::Util :all-loaded;
-    .note for all-loaded;
+use CompUnit::Util :all-loaded;
+.note for all-loaded;
 ```
 
 Returns all presently loaded `CompUnit`s.
@@ -82,9 +81,9 @@ Gets a symbol from the `UNIT` scope of the compunit.
 `($handle, *@pos, *%named --> Hash:D)`
 
 ``` perl6
-    use CompUnit::Util :capture-import;
-    need SomeModule;
-    my %symbols = capture-import('SomeModule',:tag);
+use CompUnit::Util :capture-import;
+need SomeModule;
+my %symbols = capture-import('SomeModule',:tag);
 ```
 
 Attempts to simulate a `use` statement. Returns a hash of all the
@@ -98,10 +97,10 @@ The following routines provide re-exporting which is not yet implemented in raku
 `($handle)`
 
 ``` perl6
-    use CompUnit::Util :re-export;
-    need SomeModule;
-    BEGIN re-export('SomeModule');
-    # This compunit will now export everything that SomeModule does
+use CompUnit::Util :re-export;
+need SomeModule;
+BEGIN re-export('SomeModule');
+# This compunit will now export everything that SomeModule does
 ```
 
 Merges the `EXPORT` package from `$handle` into the
@@ -113,10 +112,10 @@ present `UNIT::EXPORT`.
 `($handle)`
 
 ``` perl6
-    use CompUnit::Util :re-export;
-    need SomeModule;
-    BEGIN re-exporthow('SomeModule');
-    # This compunit now exports SomeModule's custom declarators
+use CompUnit::Util :re-export;
+need SomeModule;
+BEGIN re-exporthow('SomeModule');
+# This compunit now exports SomeModule's custom declarators
 ```
 
 Merges the `EXPORTHOW` from `$handle` into the present
@@ -125,14 +124,14 @@ exist but it won't clobber it if it does.
 
 **this routine can only be called at `BEGIN` time**
 
-### steal-EXPORT-sub
+### steal-export-sub
 `($handle)`
 
 ``` perl6
-    use CompUnit::Util :re-export;
-    need SomeModule;
-    BEGIN steal-EXPORT-sub('SomeModule');
-    # This compunit now has the same &EXPORT as SomeModule
+use CompUnit::Util :re-export;
+need SomeModule;
+BEGIN steal-EXPORT-sub('SomeModule');
+# This compunit now has the same &EXPORT as SomeModule
 ```
 
 Sets `UNIT::<&EXPORT>` to `$handle`'s `&EXPORT`.
@@ -143,9 +142,9 @@ Sets `UNIT::<&EXPORT>` to `$handle`'s `&EXPORT`.
 `($handle)`
 
 ``` perl6
-    use CompUnit::Util :re-export,:load;
-    BEGIN steal-globalish(load('SomeModule'));
-    # This compunit now has everything in SomeModule in it's globalish
+use CompUnit::Util :re-export,:load;
+BEGIN steal-globalish(load('SomeModule'));
+# This compunit now has everything in SomeModule in it's globalish
 ```
 
 Merges `UNIT::GLOBALish` with another compunit's `GLOBALish`.
@@ -155,7 +154,7 @@ already done `need SomeModule;` you won't need it. But it's here for
 completeness. The above example should be the same as this anyway:
 
 ``` perl6
-    BEGIN require ::('SomeModule');
+BEGIN require ::('SomeModule');
 ```
 
 **this routine can only be called at `BEGIN` time**
@@ -164,9 +163,9 @@ completeness. The above example should be the same as this anyway:
 `($handle)`
 
 ``` perl6
-    use CompUnit::Util :re-export;
-    BEGIN re-export-everything('SomeModule');
-    # use [this-module]; should now do the same thing as use SomeModule;
+use CompUnit::Util :re-export;
+BEGIN re-export-everything('SomeModule');
+# use [this-module]; should now do the same thing as use SomeModule;
 ```
 
 A convenience method for calling all the other functions under

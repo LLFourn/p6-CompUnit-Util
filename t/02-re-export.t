@@ -12,7 +12,7 @@ plan 10;
 {
     use re-exports-EXPORT;
     ok bar(), 'sub EXPORT symbol was re-exported';
-    nok ::('&foo'), 'steal-EXPORT only does that';
+    nok ::('&foo'), 'steal-export-sub only does that';
 }
 
 {
