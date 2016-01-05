@@ -4,17 +4,17 @@
 
 - [CompUnit::Util](#compunitutil)
   - [Utilities](#utilities)
-    - [load(Str:D $short-name,*%opts --> CompUnit:D)](#loadstrd-short-name%25opts----compunitd)
-    - [find-loaded($match --> CompUnit)](#find-loadedmatch----compunit)
-    - [all-loaded()](#all-loaded)
-    - [at-unit($handle is copy,Str:D $key)](#at-unithandle-is-copystrd-key)
-    - [capture-import($handle, *@pos, *%named --> Hash:D)](#capture-importhandle-@pos-%25named----hashd)
+    - [load](#load)
+    - [find-loaded](#find-loaded)
+    - [all-loaded](#all-loaded)
+    - [at-unit](#at-unit)
+    - [capture-import](#capture-import)
   - [Re-Exporting](#re-exporting)
-    - [re-export($handle)](#re-exporthandle)
-    - [re-exporthow($handle)](#re-exporthowhandle)
-    - [steal-EXPORT-sub($handle)](#steal-export-subhandle)
-    - [steal-globalish($handle)](#steal-globalishhandle)
-  - [re-export-everything($handle)](#re-export-everythinghandle)
+    - [re-export](#re-export)
+    - [re-exporthow](#re-exporthow)
+    - [steal-EXPORT-sub](#steal-export-sub)
+    - [steal-globalish](#steal-globalish)
+    - [re-export-everything](#re-export-everything)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -34,8 +34,7 @@ break without warning
 ## Utilities
 
 ### load
-
-`sub load(Str:D $short-name,*%opts --> CompUnit:D)`
+`(Str:D $short-name,*%opts --> CompUnit:D)`
 
 ``` perl6
     use CompUnit::Util :load;
@@ -49,8 +48,7 @@ loads a compunit by name. All named arguments to
 than `short-name` which is the positional argument).
 
 ### find-loaded
-
-`sub find-loaded($match --> CompUnit)`
+`($match --> CompUnit)`
 
 ``` perl6
     use CompUnit::Util :find-loaded;
@@ -61,7 +59,7 @@ than `short-name` which is the positional argument).
 Searches all the `CompUnit::Repository`s until it finds a loaded
 compunit matching `$match`. Returns a failure otherwise.
 
-### all-loaded()
+### all-loaded
 
 ```perl6
     use CompUnit::Util :all-loaded;
@@ -71,17 +69,17 @@ compunit matching `$match`. Returns a failure otherwise.
 Returns all presently loaded `CompUnit`s.
 
 ### at-unit
-
-`sub at-unit($handle is copy,Str:D $key)`
-
-Gets a symbol from the `UNIT` scope of the compunit.
+`($handle,Str:D $key)`
 
 ``` perl6
     use CompUnit::Util :at-unit;
     say at-unit('CompUnit::Util','$=pod');
 ```
 
-### capture-import($handle, *@pos, *%named --> Hash:D)
+Gets a symbol from the `UNIT` scope of the compunit.
+
+### capture-import
+`($handle, *@pos, *%named --> Hash:D)`
 
 ``` perl6
     use CompUnit::Util :capture-import;
@@ -90,13 +88,14 @@ Gets a symbol from the `UNIT` scope of the compunit.
 ```
 
 Attempts to simulate a `use` statement. Returns a hash of all the
-symbols the module exports.
+symbols the compunit would export if it were `use`d.
+
 ## Re-Exporting
 
-The following routines provide re-exporting which functionality which
-is not yet implemented in rakudo.
+The following routines provide re-exporting which is not yet implemented in rakudo.
 
-### re-export($handle)
+### re-export
+`($handle)`
 
 ``` perl6
     use CompUnit::Util :re-export;
@@ -110,7 +109,8 @@ present `UNIT::EXPORT`.
 
 **this routine can only be called at `BEGIN` time**
 
-### re-exporthow($handle)
+### re-exporthow
+`($handle)`
 
 ``` perl6
     use CompUnit::Util :re-export;
@@ -125,7 +125,8 @@ exist but it won't clobber it if it does.
 
 **this routine can only be called at `BEGIN` time**
 
-### steal-EXPORT-sub($handle)
+### steal-EXPORT-sub
+`($handle)`
 
 ``` perl6
     use CompUnit::Util :re-export;
@@ -138,7 +139,8 @@ Sets `UNIT::<&EXPORT>` to `$handle`'s `&EXPORT`.
 
 **this routine can only be called at `BEGIN` time**
 
-### steal-globalish($handle)
+### steal-globalish
+`($handle)`
 
 ``` perl6
     use CompUnit::Util :re-export,:load;
@@ -158,7 +160,8 @@ completeness. The above example should be the same as this anyway:
 
 **this routine can only be called at `BEGIN` time**
 
-### re-export-everything($handle)
+### re-export-everything
+`($handle)`
 
 ``` perl6
     use CompUnit::Util :re-export;
