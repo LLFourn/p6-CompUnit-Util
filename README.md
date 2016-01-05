@@ -21,7 +21,7 @@
 Utility functions for introspecting `CompUnit`s and re-exporting their symbols.
 
 Apart from `load` none of the routines here will load a compunit. All
-parameters called `$handle` will converted to a `CompUnit::Handle`
+parameters named `$handle` will converted to a `CompUnit::Handle`
 automatically. If the `$handle` you pass is not a defined `CompUnit` or
 `CompUnit::Handle`, `&find-loaded` will be used to search for an
 loaded compunit matching your argument.
