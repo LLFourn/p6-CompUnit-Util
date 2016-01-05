@@ -28,13 +28,14 @@ automatically. If the `$handle` you pass is not a defined `CompUnit` or
 `CompUnit::Handle`, `&find-loaded` will be used to search for an
 loaded compunit matching your argument.
 
-
 **warning** this module relies on unspec'd rakudo internals and could
 break without warning
 
 ## Utilities
 
-### load(Str:D $short-name,*%opts --> CompUnit:D)
+### load
+
+`sub load(Str:D $short-name,*%opts --> CompUnit:D)`
 
 ``` perl6
     use CompUnit::Util :load;
@@ -47,7 +48,9 @@ loads a compunit by name. All named arguments to
 `CompUnit::DependencySpecification` are accepted (other
 than `short-name` which is the positional argument).
 
-### find-loaded($match --> CompUnit)
+### find-loaded
+
+`sub find-loaded($match --> CompUnit)`
 
 ``` perl6
     use CompUnit::Util :find-loaded;
@@ -67,14 +70,16 @@ compunit matching `$match`. Returns a failure otherwise.
 
 Returns all presently loaded `CompUnit`s.
 
-### at-unit($handle is copy,Str:D $key)
+### at-unit
+
+`sub at-unit($handle is copy,Str:D $key)`
+
+Gets a symbol from the `UNIT` scope of the compunit.
 
 ``` perl6
     use CompUnit::Util :at-unit;
     say at-unit('CompUnit::Util','$=pod');
 ```
-
-Gets a symbol from the `UNIT` scope of the compunit.
 
 ### capture-import($handle, *@pos, *%named --> Hash:D)
 
@@ -153,7 +158,7 @@ completeness. The above example should be the same as this anyway:
 
 **this routine can only be called at `BEGIN` time**
 
-## re-export-everything($handle)
+### re-export-everything($handle)
 
 ``` perl6
     use CompUnit::Util :re-export;
