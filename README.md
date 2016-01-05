@@ -130,7 +130,7 @@ exist but it won't clobber it if it does.
 ``` perl6
 use CompUnit::Util :re-export;
 need SomeModule;
-BEGIN steal-EXPORT-sub('SomeModule');
+BEGIN steal-export-sub('SomeModule');
 # This compunit now has the same &EXPORT as SomeModule
 ```
 
