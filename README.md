@@ -10,7 +10,7 @@
   - [Re-Exporting](#re-exporting)
     - [re-export](#re-export)
     - [re-exporthow](#re-exporthow)
-    - [steal-EXPORT-sub](#steal-export-sub)
+    - [steal-export-sub](#steal-export-sub)
     - [steal-globalish](#steal-globalish)
     - [re-export-everything](#re-export-everything)
 
