@@ -41,10 +41,14 @@ my CompUnit $cu = load('Test');
 my $cu = load('MyModule', version => v3);
 ```
 
-
 Loads a compunit by name. All named arguments to
-`CompUnit::DependencySpecification` are accepted (other
-than `short-name` which is the positional argument).
+`CompUnit::DependencySpecification` are accepted (other than
+`short-name` which is the positional argument). At the moment `load`
+is just short for:
+
+``` perl6
+    $*REPO.need(CompUnit::Dependencyspecification.new(:short_name<MyModule>));
+```
 
 ### find-loaded
 `($match --> CompUnit)`
