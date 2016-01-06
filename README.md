@@ -47,7 +47,7 @@ Loads a compunit by name. All named arguments to
 is just short for:
 
 ``` perl6
-    $*REPO.need(CompUnit::Dependencyspecification.new(:short_name<MyModule>));
+$*REPO.need(CompUnit::Dependencyspecification.new(:short_name<MyModule>));
 ```
 
 ### find-loaded
