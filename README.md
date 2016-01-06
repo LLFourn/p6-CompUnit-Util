@@ -75,11 +75,21 @@ Returns all presently loaded `CompUnit`s.
 `($handle,Str:D $key)`
 
 ``` perl6
-    use CompUnit::Util :at-unit;
-    say at-unit('CompUnit::Util','$=pod');
+use CompUnit::Util :at-unit;
+say at-unit('CompUnit::Util','$=pod');
 ```
 
 Gets a symbol from the `UNIT` scope of the compunit.
+
+### unit-to-hash
+`($handle)`
+
+``` perl6
+use CompUnit::Util :unit-to-hash;
+my %unit := unit-to-hash('SomeModule');
+```
+
+returns a `Hash` representing the `UNIT::` of the module.
 
 ### capture-import
 `($handle, *@pos, *%named --> Hash:D)`
@@ -151,7 +161,7 @@ BEGIN steal-globalish(load('SomeModule'));
 # This compunit now has everything in SomeModule in it's globalish
 ```
 
-Merges `UNIT::GLOBALish` with another compunit's `GLOBALish`.
+Merges the `GLOBALish` from `$handle` intot he present `UNIT::GLOBALish`.
 
 This is the least interesting of all the re-exports, and if you've
 already done `need SomeModule;` you won't need it. But it's here for

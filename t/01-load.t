@@ -1,6 +1,6 @@
 use Test;
-use CompUnit::Util :find-loaded,:load,:all-loaded, :at-unit;
-plan 10;
+use CompUnit::Util :find-loaded,:load,:all-loaded, :at-unit,:unit-to-hash;
+plan 11;
 
 ok my $native-call = load('NativeCall'),'load';
 ok $native-call === load('NativeCall'), 'load again returns same thing';
@@ -18,3 +18,5 @@ my $pod = at-unit('CompUnit::Util','$=pod')[0];
 ok  $pod ~~ Pod::Block:D, 'at-unit finds $=pod';
 ok at-unit($cu,'$=pod')[0] === $pod,'at-units works with CompUnit';
 ok at-unit($cu.handle,'$=pod')[0] === $pod,'at-units works with CompUnit::Handle';
+
+ok unit-to-hash($cu)<$=pod>[0] === $pod, 'unit-to-hash returns same thing';

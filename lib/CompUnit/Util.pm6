@@ -40,6 +40,18 @@ sub at-unit($handle is copy,Str:D $key) is export(:at-unit){
     nqp::atkey($handle.unit,$key);
 }
 
+sub unit-to-hash($handle is copy) is export(:unit-to-hash) {
+    use nqp;
+    my $unit := $handle.unit;
+    my Mu $iter := nqp::iterator($unit);
+    my %hash;
+    while $iter {
+        my $i := nqp::shift($iter);
+        %hash{nqp::iterkey_s($i)} = nqp::iterval($i);
+    }
+    return %hash;
+}
+
 sub capture-import($handle is copy, *@pos, *%named --> Hash:D) is export(:capture-import){
     $handle .= &handle;
     my $EXPORT     = $handle.export-package;
