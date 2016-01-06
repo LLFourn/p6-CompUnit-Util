@@ -21,10 +21,10 @@
 Utility functions for introspecting `CompUnit`s and re-exporting their symbols.
 
 Apart from `load` none of the routines here will load a compunit. All
-parameters named `$handle` will converted to a `CompUnit::Handle`
+parameters named `$handle` are converted to a `CompUnit::Handle`
 automatically. If the `$handle` you pass is not a defined `CompUnit` or
 `CompUnit::Handle`, `&find-loaded` will be used to search for an
-loaded compunit matching your argument.
+loaded compunit matching it.
 
 **warning** this module relies on unspec'd rakudo internals and could
 break without warning
