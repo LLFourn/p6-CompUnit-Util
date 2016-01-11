@@ -14,7 +14,6 @@
     - [steal-export-sub](#steal-export-sub)
     - [steal-globalish](#steal-globalish)
     - [re-export-everything](#re-export-everything)
-  - [Symbol Manipulation Utilities](#symbol-manipulation-utilities)
   - [Symbol setting](#symbol-setting)
     - [set-export](#set-export)
     - [set-globalish](#set-globalish)
@@ -268,7 +267,7 @@ compiled.
 
 ``` perl6
 # modifies the parser to create a term called foo which
-# returns 'foo'. Obviously this is what sub term:<foo> { } for but this
+# returns 'foo'. Obviously this is what sub term:<foo> { } is for, but this
 # is the hard way to do it
 sub EXPORT {
     use nqp;
