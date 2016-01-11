@@ -1,11 +1,12 @@
 <!-- START doctoc generated TOC please keep comment here to allow auto update -->
 <!-- DON'T EDIT THIS SECTION, INSTEAD RE-RUN doctoc TO UPDATE -->
 - [CompUnit::Util](#compunitutil)
-  - [Utilities](#utilities)
+  - [General Utilities](#general-utilities)
     - [load](#load)
     - [find-loaded](#find-loaded)
     - [all-loaded](#all-loaded)
     - [at-unit](#at-unit)
+    - [unit-to-hash](#unit-to-hash)
     - [capture-import](#capture-import)
   - [Re-Exporting](#re-exporting)
     - [re-export](#re-export)
@@ -13,6 +14,13 @@
     - [steal-export-sub](#steal-export-sub)
     - [steal-globalish](#steal-globalish)
     - [re-export-everything](#re-export-everything)
+  - [Symbol Manipulation Utilities](#symbol-manipulation-utilities)
+  - [Symbol setting](#symbol-setting)
+    - [set-export](#set-export)
+    - [set-globalish](#set-globalish)
+    - [set-unit](#set-unit)
+    - [set-lexical](#set-lexical)
+    - [mixin_LANG](#mixin_lang)
 
 <!-- END doctoc generated TOC please keep comment here to allow auto update -->
 
@@ -29,7 +37,7 @@ loaded compunit matching it.
 **warning** this module relies on unspec'd rakudo internals and could
 break without warning
 
-## Utilities
+## General Utilities
 
 ### load
 `(Str:D $short-name,*%opts --> CompUnit:D)`
@@ -186,3 +194,105 @@ A convenience method for calling all the other functions under
 re-export functions with the same argument.
 
 **this routine can only be called at `BEGIN` time**
+
+## Symbol Manipulation Utilities
+
+These manipulate symbols at compile time. They are most useful inside
+`&EXPORT` and in traits.
+
+
+## Symbol setting
+
+The following routines manipulate the symbols of the compunit being
+compiled. They are probably of most use inside an `&EXPORT` sub or in
+a trait.
+
+They each take a map of symbol names to values and install them in
+different places.
+
+**note:** These subs will overwrite existing symbols without warning.
+
+### set-export
+`(%syms, :$tag = 'DEFAULT')`
+
+```perl6
+# anything that imports from this module will export &foo under DEFAULT
+sub EXPORT {
+    use CompUnit::Util :set-export;
+    set-export( %( '&foo' => my sub foo { } ) );
+    {};
+}
+```
+
+Inserts name/value pairs into the present `UNIT::EXPORT` under `$tag`.
+
+### set-globalish
+`(%syms)`
+
+```perl6
+# inserts a class under a dynamic name into GLOBALish
+sub EXPORT($name) {
+    use CompUnit::Util :set-export;
+    set-globalish( %( $name => my class { } ) );
+    {};
+}
+```
+Inserts the name/value pairs into the present `GLOBALish`.
+
+### set-unit
+`(%syms)`
+
+```perl6
+# inserts a class under a dynamic name into UNIT
+
+sub EXPORT($name) {
+    use CompUnit::Util :set-export;
+    set-unit( %( $name => my class { } ) )
+}
+```
+
+Inserts the name/value pairs into the present `UNIT`.
+
+### set-lexical
+`(%syms)`
+
+``` perl6
+# inserts a class under a dynamic name into lexical scope
+sub EXPORT($name) {
+    use CompUnit::Util :set-export;
+    set-lexical( %( $name => my class { } ) );
+}
+```
+
+Inserts the name/value pairs into the present lexical scope being
+compiled.
+
+### mixin_LANG
+`($lang = 'MAIN',:$grammar,:$actions)`
+
+``` perl6
+# modifies the parser to create a term called foo which
+# returns 'foo'. Obviously this is what sub term:<foo> { } for but this
+# is the hard way to do it
+sub EXPORT {
+    use nqp;
+    use QAST:from<NQP>;
+    use CompUnit::Util :mixin-LANG;
+    mixin_LANG(
+        grammar => role {
+            token term:sym<foo> { <sym> <.tok> }
+        },
+        actions => role {
+            method term:sym<foo>(Mu $/){
+                return $/.'!make'(QAST::SVal.new(:value("foo")));
+            }
+        }
+    );
+}
+```
+
+Modifies the `%*LANG` of the present lexical scope being compiled.
+Presently this is the best way to modify rakudo's parser and create a
+*slang*. You will need to know about
+[QAST](https://github.com/perl6/nqp/blob/master/docs/qast.markdown) to
+do anything useful with this.

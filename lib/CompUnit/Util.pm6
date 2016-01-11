@@ -1,5 +1,4 @@
 =pod This is just some pod to test at-unit('CompUnit::Util','$=pod');
-
 unit module CompUnit::Util;
 
 # I would like to have .wrap to do this automaticaly but you
@@ -14,6 +13,7 @@ sub handle($_) {
 sub load(Str:D $short-name,*%opts --> CompUnit:D) is export(:load){
     $*REPO.need(CompUnit::DependencySpecification.new(:$short-name,|%opts));
 }
+
 
 sub find-loaded($match --> CompUnit) is export(:find-loaded)  {
     my $repo = $*REPO;
@@ -32,6 +32,11 @@ sub find-loaded($match --> CompUnit) is export(:find-loaded)  {
 sub all-loaded is export(:all-loaded){
     my $repo = $*REPO;
     do repeat { |$repo.loaded } while $repo .= next-repo;
+}
+
+sub all-repos is export(:all-repos) {
+    my $repo = $*REPO;
+    do repeat { $repo } while $repo .= next-repo;
 }
 
 sub at-unit($handle is copy,Str:D $key) is export(:at-unit){
@@ -122,4 +127,50 @@ sub re-export-everything($_ is copy) is export(:re-export) {
     .&re-exporthow;
     .&steal-export-sub;
     .&steal-globalish;
+}
+
+sub set-export(%syms,Str:D $tag = 'DEFAULT') is export(:set-symbols){
+    die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
+    for %syms {
+        $*UNIT.symbol('EXPORT').<value>.WHO.package_at_key($tag).WHO.{.key} := .value;
+    }
+}
+
+sub set-globalish(%syms) is export(:set-symbols) {
+    use nqp;
+    die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
+
+    for %syms.kv -> $key,\value is raw {
+        # if no  decont the value here it goofs
+        $*GLOBALish.WHO.{$key} := nqp::decont(value);
+    }
+}
+
+sub set-unit(%syms) is export(:set-symbols) {
+    die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
+    for %syms {
+        $*W.install_lexical_symbol($*UNIT,.key,.value);
+    }
+}
+
+sub set-lexical(%syms) is export(:set-symbols) {
+    die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
+    for %syms {
+        $*W.install_lexical_symbol($*W.cur_lexpad(),.key,.value);
+    }
+}
+
+sub mixin_LANG($lang = 'MAIN',:$grammar,:$actions) is export(:mixin_LANG){
+    die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
+
+    if $grammar !=== Any {
+        %*LANG{$lang} := %*LANG{$lang}.^mixin($grammar);
+    }
+
+    if $actions !=== Any {
+        my $actions-key = $lang ~ '-actions';
+        %*LANG{$actions-key} := %*LANG{$actions-key}.^mixin($actions);
+    }
+    # needed so it will work in EVAL
+    set-lexical(%('%?LANG' => $*W.p6ize_recursive(%*LANG)));
 }
