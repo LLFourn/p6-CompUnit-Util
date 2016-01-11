@@ -195,12 +195,6 @@ re-export functions with the same argument.
 
 **this routine can only be called at `BEGIN` time**
 
-## Symbol Manipulation Utilities
-
-These manipulate symbols at compile time. They are most useful inside
-`&EXPORT` and in traits.
-
-
 ## Symbol setting
 
 The following routines manipulate the symbols of the compunit being
@@ -248,6 +242,7 @@ Inserts the name/value pairs into the present `GLOBALish`.
 sub EXPORT($name) {
     use CompUnit::Util :set-export;
     set-unit( %( $name => my class { } ) )
+    {};
 }
 ```
 
@@ -261,6 +256,7 @@ Inserts the name/value pairs into the present `UNIT`.
 sub EXPORT($name) {
     use CompUnit::Util :set-export;
     set-lexical( %( $name => my class { } ) );
+    {};
 }
 ```
 
@@ -288,6 +284,7 @@ sub EXPORT {
             }
         }
     );
+    {};
 }
 ```
 
