@@ -10,8 +10,6 @@ sub handle($_) {
     default { find-loaded($_).handle }
 }
 
-
-
 sub load(Str:D $short-name,*%opts --> CompUnit:D) is export(:load){
     $*REPO.need(CompUnit::DependencySpecification.new(:$short-name,|%opts));
 }
@@ -46,12 +44,24 @@ sub at-unit($handle is copy,Str:D $key) is export(:at-unit){
     nqp::atkey($handle.unit,$key);
 }
 
-sub set-in-who($WHO is copy,$key,$value) is export(:set-in-who) {
-    use nqp;
-    my @parts = $key.split('::');
+sub descend-WHO($WHO is copy,$path) is export(:descend-WHO){
+    my @parts = $path.split('::');
     while @parts.shift -> $part {
         if @parts == 0 {
-            # if no decont the value here goofs may happen
+            return $WHO{$part};
+        } else {
+            return Any unless $WHO{$part}:exists;
+            $WHO = $WHO{$part}.WHO;
+        }
+    }
+}
+
+sub set-in-WHO($WHO is copy,$path,$value) is export(:set-in-WHO) {
+    use nqp;
+    my @parts = $path.split('::');
+    while @parts.shift -> $part {
+        if @parts == 0 {
+            # if no decont the goofs may happen
             $WHO.{$part} := nqp::decont($value);
         } else {
             if not $WHO.{$part}:exists {
@@ -162,7 +172,7 @@ sub set-globalish(%syms) is export(:set-symbols) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
 
     for %syms  {
-        set-in-who($*GLOBALish.WHO,.key,.value);
+        set-in-WHO($*GLOBALish.WHO,.key,.value);
     }
 }
 
@@ -184,7 +194,7 @@ sub set-exporthow-declare(%syms) is export(:set-symbols) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     my $WHO := vivify-exporthow.WHO;
     for %syms {
-        set-in-who($WHO,"DECLARE::{.key}",.value);
+        set-in-WHO($WHO,"DECLARE::{.key}",.value);
     }
 }
 
@@ -192,7 +202,7 @@ sub set-exporthow-supersede(%syms) is export(:set-symbols) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     my $WHO := vivify-exporthow.WHO;
     for %syms {
-        set-in-who($WHO,"SUPERSEDE::{.key}",.value);
+        set-in-WHO($WHO,"SUPERSEDE::{.key}",.value);
     }
 }
 

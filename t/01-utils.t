@@ -1,6 +1,6 @@
 use Test;
-use CompUnit::Util :find-loaded,:load,:all-loaded,:at-unit,:unit-to-hash,:set-in-who;
-plan 15;
+use CompUnit::Util :find-loaded,:load,:all-loaded,:at-unit,:unit-to-hash;
+plan 18;
 
 ok my $native-call = load('NativeCall'),'load';
 ok $native-call === load('NativeCall'), 'load again returns same thing';
@@ -24,19 +24,22 @@ ok unit-to-hash($cu)<$=pod>[0] === $pod, 'unit-to-hash returns same thing';
 
 {
     eval-lives-ok q|
-    use CompUnit::Util :set-in-who;
+        use CompUnit::Util :set-in-WHO,:descend-WHO;
         my package tmp {};
-        BEGIN set-in-who(tmp.WHO,'Foo','foo');
-        is tmp::Foo,'foo','set-in-who 1 name'
+        BEGIN set-in-WHO(tmp.WHO,'Foo','foo');
+        is tmp::Foo,'foo','set-in-WHO 1 name';
+        is descend-WHO(tmp.WHO,'Foo'),'foo';
     |;
 }
 
 {
     eval-lives-ok q|
-        use CompUnit::Util :set-in-who;
+        use CompUnit::Util :set-in-WHO,:descend-WHO;
         my package tmp {};
-        BEGIN set-in-who(tmp.WHO,'Foo::Bar::$Baz','bar');
-        is tmp::Foo::Bar::<$Baz>,'bar','set-in-who multiple';
+        BEGIN set-in-WHO(tmp.WHO,'Foo::Bar::$Baz','bar');
+        is tmp::Foo::Bar::<$Baz>,'bar','set-in-WHO multiple';
+        is descend-WHO(tmp.WHO,'Foo::Bar::$Baz'),'bar','descend-WHO finds $Baz';
+        is descend-WHO(tmp.WHO,'Baz::Foo::$Bar'),Any,<doesn't find non existent>;
     |;
 
 }
