@@ -10,10 +10,11 @@ sub handle($_) {
     default { find-loaded($_).handle }
 }
 
+
+
 sub load(Str:D $short-name,*%opts --> CompUnit:D) is export(:load){
     $*REPO.need(CompUnit::DependencySpecification.new(:$short-name,|%opts));
 }
-
 
 sub find-loaded($match --> CompUnit) is export(:find-loaded)  {
     my $repo = $*REPO;
@@ -43,6 +44,23 @@ sub at-unit($handle is copy,Str:D $key) is export(:at-unit){
     use nqp;
     $handle .= &handle;
     nqp::atkey($handle.unit,$key);
+}
+
+sub set-in-who($WHO is copy,$key,$value) is export(:set-in-who) {
+    use nqp;
+    my @parts = $key.split('::');
+    while @parts.shift -> $part {
+        if @parts == 0 {
+            # if no decont the value here goofs may happen
+            $WHO.{$part} := nqp::decont($value);
+        } else {
+            if not $WHO.{$part}:exists {
+                # if it doesn't exist create it
+                $WHO.package_at_key($part);
+            }
+            $WHO = $WHO.{$part}.WHO;
+        }
+    }
 }
 
 sub unit-to-hash($handle is copy) is export(:unit-to-hash) {
@@ -86,22 +104,26 @@ multi re-export($handle is copy)  is export(:re-export) {
     $*UNIT.symbol('EXPORT')<value>.WHO.merge-symbols($handle.export-package);
 }
 
+
+sub vivify-exporthow {
+    my $existing := $*UNIT.symbol('EXPORTHOW');
+
+     do if $existing<value>:exists {
+        $existing<value>;
+    } else {
+         my $new := Metamodel::PackageHOW.new_type(:name("EXPORTHOW"));
+         $*W.install_lexical_symbol($*UNIT,'EXPORTHOW',$new);
+         return $new;
+    }
+}
+
 sub re-exporthow($handle is copy) is export(:re-export){
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     $handle .= &handle;
 
     if $handle.export-how-package -> $target-WHO {
-        my $existing := $*UNIT.symbol('EXPORTHOW');
-
-        my $EXPORTHOW := do if $existing<value>:exists {
-            $existing<value>;
-        } else {
-            Metamodel::PackageHOW.new_type(:name("EXPORTHOW"));
-        }
-
-        my $my-WHO := $EXPORTHOW.WHO;
+        my $my-WHO := vivify-exporthow.WHO;
         $my-WHO.merge-symbols($target-WHO);
-        $*W.install_lexical_symbol($*UNIT,'EXPORTHOW',$EXPORTHOW);
     }
 }
 
@@ -137,12 +159,10 @@ sub set-export(%syms,Str:D $tag = 'DEFAULT') is export(:set-symbols){
 }
 
 sub set-globalish(%syms) is export(:set-symbols) {
-    use nqp;
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
 
-    for %syms.kv -> $key,\value is raw {
-        # if no  decont the value here it goofs
-        $*GLOBALish.WHO.{$key} := nqp::decont(value);
+    for %syms  {
+        set-in-who($*GLOBALish.WHO,.key,.value);
     }
 }
 
@@ -157,6 +177,22 @@ sub set-lexical(%syms) is export(:set-symbols) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     for %syms {
         $*W.install_lexical_symbol($*W.cur_lexpad(),.key,.value);
+    }
+}
+
+sub set-exporthow-declare(%syms) is export(:set-symbols) {
+    die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
+    my $WHO := vivify-exporthow.WHO;
+    for %syms {
+        set-in-who($WHO,"DECLARE::{.key}",.value);
+    }
+}
+
+sub set-exporthow-supersede(%syms) is export(:set-symbols) {
+    die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
+    my $WHO := vivify-exporthow.WHO;
+    for %syms {
+        set-in-who($WHO,"SUPERSEDE::{.key}",.value);
     }
 }
 

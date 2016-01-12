@@ -1,6 +1,6 @@
 use Test;
-use CompUnit::Util :find-loaded,:load,:all-loaded, :at-unit,:unit-to-hash;
-plan 11;
+use CompUnit::Util :find-loaded,:load,:all-loaded,:at-unit,:unit-to-hash,:set-in-who;
+plan 15;
 
 ok my $native-call = load('NativeCall'),'load';
 ok $native-call === load('NativeCall'), 'load again returns same thing';
@@ -20,3 +20,23 @@ ok at-unit($cu,'$=pod')[0] === $pod,'at-units works with CompUnit';
 ok at-unit($cu.handle,'$=pod')[0] === $pod,'at-units works with CompUnit::Handle';
 
 ok unit-to-hash($cu)<$=pod>[0] === $pod, 'unit-to-hash returns same thing';
+
+
+{
+    eval-lives-ok q|
+    use CompUnit::Util :set-in-who;
+        my package tmp {};
+        BEGIN set-in-who(tmp.WHO,'Foo','foo');
+        is tmp::Foo,'foo','set-in-who 1 name'
+    |;
+}
+
+{
+    eval-lives-ok q|
+        use CompUnit::Util :set-in-who;
+        my package tmp {};
+        BEGIN set-in-who(tmp.WHO,'Foo::Bar::$Baz','bar');
+        is tmp::Foo::Bar::<$Baz>,'bar','set-in-who multiple';
+    |;
+
+}

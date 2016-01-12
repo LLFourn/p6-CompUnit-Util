@@ -3,8 +3,7 @@ use CompUnit::Util :set-symbols;
 BEGIN set-export(%('&foo' => sub foo { }));
 BEGIN set-export({EXPORT-Foo => 'foo'});
 BEGIN set-globalish({GLOBALish-Foo => 'foo'});
-#BEGIN note $*GLOBALish.WHO.{'GLOBALish-Foo'};
-#note GLOBALish-Foo;
+BEGIN set-globalish(%('Foo::Bar::Baz' => 'foobarbaz'));
 
 sub EXPORT {
     set-unit({UNIT-EXPORT-sub-Foo => 'foo'});

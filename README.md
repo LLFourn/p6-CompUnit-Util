@@ -88,6 +88,20 @@ say at-unit('CompUnit::Util','$=pod');
 
 Gets a symbol from the `UNIT` scope of the compunit.
 
+### set-in-who
+`($WHO,$key,$value)`
+
+``` perl6
+use CompUnit::Util :set-in-who;
+my package tmp {};
+BEGIN set-in-who(tmp.WHO,'Foo::Bar::Baz','win');
+
+say tmp::Foo::Bar::<$Baz>; #-> win
+```
+
+Convenience method for setting a symbol's value inside a package that
+might not exist yet.
+
 ### unit-to-hash
 `($handle)`
 
