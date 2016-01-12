@@ -246,6 +246,8 @@ sub EXPORT($name) {
 ```
 Inserts the name/value pairs into the present `GLOBALish`.
 
+**this routine can only be called at `BEGIN` time**
+
 ### set-unit
 `(%syms)`
 
@@ -261,6 +263,8 @@ sub EXPORT($name) {
 
 Inserts the name/value pairs into the present `UNIT`.
 
+**this routine can only be called at `BEGIN` time**
+
 ### set-lexical
 `(%syms)`
 
@@ -275,6 +279,8 @@ sub EXPORT($name) {
 
 Inserts the name/value pairs into the present lexical scope being
 compiled.
+
+**this routine can only be called at `BEGIN` time**
 
 ### mixin_LANG
 `($lang = 'MAIN',:$grammar,:$actions)`
@@ -306,3 +312,5 @@ Presently this is the best way to modify rakudo's parser and create a
 *slang*. You will need to know about
 [QAST](https://github.com/perl6/nqp/blob/master/docs/qast.markdown) to
 do anything useful with this.
+
+**this routine can only be called at `BEGIN` time**
