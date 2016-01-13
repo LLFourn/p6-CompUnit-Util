@@ -88,19 +88,33 @@ say at-unit('CompUnit::Util','$=pod');
 
 Gets a symbol from the `UNIT` scope of the compunit.
 
-### set-in-who
+### set-in-WHO
 `($WHO,$key,$value)`
 
 ``` perl6
 use CompUnit::Util :set-in-who;
-my package tmp {};
-BEGIN set-in-who(tmp.WHO,'Foo::Bar::Baz','win');
+my package Example {};
+BEGIN set-in-who(Example.WHO,'Foo::Bar::Baz','win');
 
-say tmp::Foo::Bar::<$Baz>; #-> win
+say Example::Foo::Bar::<$Baz>; #-> win
 ```
 
-Convenience method for setting a symbol's value inside a package that
-might not exist yet.
+Convenience routine for setting a symbol's value inside a package that
+might not exist yet. Only useful outside the currently
+compiling compunit (where you can just use the normal syntax).
+
+### descend-WHO
+`($WHO,Str:D $path)`
+
+``` perl6
+my package Example {};
+BEGIN set-in-who(Example.WHO,'Foo::Bar::Baz','win');
+BEGIN note descend-who(Example.WHO,'Foo::Bar::Baz'); #-> win
+```
+
+Convenience routine for getting a symbol's value with a path from a
+`Stash` like `.WHO`. Only useful outside the currently compiling
+compunit (where you can just use the normal syntax).
 
 ### unit-to-hash
 `($handle)`

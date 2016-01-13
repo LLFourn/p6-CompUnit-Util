@@ -1,4 +1,3 @@
-=pod This is just some pod to test at-unit('CompUnit::Util','$=pod');
 unit module CompUnit::Util;
 
 # I would like to have .wrap to do this automaticaly but you
@@ -38,19 +37,29 @@ sub all-repos is export(:all-repos) {
     do repeat { $repo } while $repo .= next-repo;
 }
 
-sub at-unit($handle is copy,Str:D $key) is export(:at-unit){
+sub at-unit($handle is copy,Str:D $path) is export(:at-unit){
     use nqp;
     $handle .= &handle;
-    nqp::atkey($handle.unit,$key);
+    my ($key,*@path) = $path.split('::');
+    do if nqp::existskey($handle.unit,$key) {
+        my $val = nqp::atkey($handle.unit,$key);
+        return do if @path {
+            descend-WHO($val.WHO,@path.join('::'));
+        } else {
+            $val;
+        }
+    } else {
+        Nil;
+    }
 }
 
-sub descend-WHO($WHO is copy,$path) is export(:descend-WHO){
+sub descend-WHO($WHO is copy,Str:D $path) is export(:descend-WHO){
     my @parts = $path.split('::');
     while @parts.shift -> $part {
         if @parts == 0 {
             return $WHO{$part};
         } else {
-            return Any unless $WHO{$part}:exists;
+            return Nil unless $WHO{$part}:exists;
             $WHO = $WHO{$part}.WHO;
         }
     }
@@ -220,3 +229,11 @@ sub mixin_LANG($lang = 'MAIN',:$grammar,:$actions) is export(:mixin_LANG){
     # needed so it will work in EVAL
     set-lexical(%('%?LANG' => $*W.p6ize_recursive(%*LANG)));
 }
+
+sub get-globalish(Str $path?) is export(:get-symbols) {
+    die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
+    return $*GLOBALish unless $path;
+    descend-WHO($*GLOBALish.WHO,$path);
+}
+
+=pod This is just some pod to test at-unit('CompUnit::Util','$=pod');

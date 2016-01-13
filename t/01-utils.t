@@ -1,6 +1,7 @@
 use Test;
+plan 17;
 use CompUnit::Util :find-loaded,:load,:all-loaded,:at-unit,:unit-to-hash;
-plan 18;
+use MONKEY-SEE-NO-EVAL;
 
 ok my $native-call = load('NativeCall'),'load';
 ok $native-call === load('NativeCall'), 'load again returns same thing';
@@ -19,11 +20,15 @@ ok  $pod ~~ Pod::Block:D, 'at-unit finds $=pod';
 ok at-unit($cu,'$=pod')[0] === $pod,'at-units works with CompUnit';
 ok at-unit($cu.handle,'$=pod')[0] === $pod,'at-units works with CompUnit::Handle';
 
+# EVAL because of strange warning about failure
+EVAL q|ok at-unit($cu,'EXPORT::at-unit::&at-unit') === &at-unit|;
+
+
 ok unit-to-hash($cu)<$=pod>[0] === $pod, 'unit-to-hash returns same thing';
 
 
 {
-    eval-lives-ok q|
+    EVAL q|
         use CompUnit::Util :set-in-WHO,:descend-WHO;
         my package tmp {};
         BEGIN set-in-WHO(tmp.WHO,'Foo','foo');
@@ -33,13 +38,13 @@ ok unit-to-hash($cu)<$=pod>[0] === $pod, 'unit-to-hash returns same thing';
 }
 
 {
-    eval-lives-ok q|
+    EVAL q|
         use CompUnit::Util :set-in-WHO,:descend-WHO;
         my package tmp {};
         BEGIN set-in-WHO(tmp.WHO,'Foo::Bar::$Baz','bar');
         is tmp::Foo::Bar::<$Baz>,'bar','set-in-WHO multiple';
         is descend-WHO(tmp.WHO,'Foo::Bar::$Baz'),'bar','descend-WHO finds $Baz';
-        is descend-WHO(tmp.WHO,'Baz::Foo::$Bar'),Any,<doesn't find non existent>;
+        is descend-WHO(tmp.WHO,'Baz::Foo::$Bar'),Nil,<doesn't find non existent>;
     |;
 
 }
