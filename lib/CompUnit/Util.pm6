@@ -123,16 +123,25 @@ multi re-export($handle is copy)  is export(:re-export) {
     $*UNIT.symbol('EXPORT')<value>.WHO.merge-symbols($handle.export-package);
 }
 
-
-sub vivify-exporthow {
-    my $existing := $*UNIT.symbol('EXPORTHOW');
-
-     do if $existing<value>:exists {
+sub vivify-QBlock-pkg(Mu \qblock is raw,$name) {
+    my $existing := qblock.symbol($name);
+    do if $existing<value>:exists {
         $existing<value>;
     } else {
-         my $new := Metamodel::PackageHOW.new_type(:name("EXPORTHOW"));
-         $*W.install_lexical_symbol($*UNIT,'EXPORTHOW',$new);
-         return $new;
+        my $new := Metamodel::PackageHOW.new_type(:name($name));
+        $*W.install_lexical_symbol(qblock,$name,$new);
+        $new;
+    }
+}
+
+sub set-in-QBlock(Mu \qblock is raw,$path,Mu $value) {
+    my ($first,@parts) = $path.split('::');
+    my $existing := qblock.symbol($first);
+    if @parts {
+        my $pkg = vivify-QBlock-pkg(qblock,$first);
+        set-in-WHO($pkg.WHO,@parts.join('::'),$value);
+    } else {
+        $*W.install_lexical_symbol(qblock,$first,$value);
     }
 }
 
@@ -141,7 +150,7 @@ sub re-exporthow($handle is copy) is export(:re-export){
     $handle .= &handle;
 
     if $handle.export-how-package -> $target-WHO {
-        my $my-WHO := vivify-exporthow.WHO;
+        my $my-WHO := vivify-QBlock-pkg($*UNIT,'EXPORTHOW').WHO;
         $my-WHO.merge-symbols($target-WHO);
     }
 }
@@ -188,30 +197,14 @@ sub set-globalish(%syms) is export(:set-symbols) {
 sub set-unit(%syms) is export(:set-symbols) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     for %syms {
-        $*W.install_lexical_symbol($*UNIT,.key,.value);
+        set-in-QBlock($*UNIT,.key,.value);
     }
 }
 
 sub set-lexical(%syms) is export(:set-symbols) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     for %syms {
-        $*W.install_lexical_symbol($*W.cur_lexpad(),.key,.value);
-    }
-}
-
-sub set-exporthow-declare(%syms) is export(:set-symbols) {
-    die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
-    my $WHO := vivify-exporthow.WHO;
-    for %syms {
-        set-in-WHO($WHO,"DECLARE::{.key}",.value);
-    }
-}
-
-sub set-exporthow-supersede(%syms) is export(:set-symbols) {
-    die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
-    my $WHO := vivify-exporthow.WHO;
-    for %syms {
-        set-in-WHO($WHO,"SUPERSEDE::{.key}",.value);
+        set-in-QBlock($*W.cur_lexpad(),.key,.value);
     }
 }
 
