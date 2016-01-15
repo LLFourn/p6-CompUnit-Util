@@ -1,4 +1,4 @@
-[# CompUnit::Util [![Build Status](https://travis-ci.org/LLFourn/p6-CompUnit-Util.svg?branch=master)](https://travis-ci.org/LLFourn/p6-CompUnit-Util)
+# CompUnit::Util [![Build Status](https://travis-ci.org/LLFourn/p6-CompUnit-Util.svg?branch=master)](https://travis-ci.org/LLFourn/p6-CompUnit-Util)
 
 Utility functions for introspecting `CompUnit`s and re-exporting their symbols.
 
