@@ -29,6 +29,7 @@ sub set-in-QBlock(Mu \qblock is raw,$path,Mu $value) {
         $*W.install_lexical_symbol(qblock,$first,$value);
     }
 }
+
 sub get-in-QBblock(Mu \qblock is raw,$path) {
     my ($first,@parts) = $path.split('::');
     my $top := qblock.symbol($first);
@@ -201,27 +202,50 @@ sub set-lexpad(Str:D $path,Mu $value) is export(:set-symbols) {
     set-in-QBlock($*W.cur_lexpad,$path,$value);
 }
 
-sub push-QBlock-multi(Mu \qblock,$path,$value is copy) {
+
+sub push-multi(Routine:D $target where { .is_dispatcher },Routine:D $r) {
+    $target.add_dispatchee(nqp::decont($r));
+}
+
+sub push-QBlock-multi(Mu \qblock,$path,$multi is copy) {
     if get-in-QBblock(qblock,$path) -> $existing {
-        if $value.is_dispatcher {
+        if $multi.is_dispatcher {
             die "cannot add dispatcher to '$path' because it already exists";
         } else {
-            $existing.add_dispatchee(nqp::decont($value));
+            push-multi($existing,$multi);
         }
     } else {
-        $value .= dispatcher unless $value.is_dispatcher;
-        set-in-QBlock(qblock,$path,$value);
+        $multi .= dispatcher unless $multi.is_dispatcher;
+        set-in-QBlock(qblock,$path,$multi);
     }
 }
 
-sub push-unit-multi(Str:D $path,Routine:D $value where { .multi || .is_dispatcher } ) is export(:push-multi) {
+subset MultiOrDispatcher of Routine ;
+
+sub push-unit-multi(Str:D $path, $multi where { .multi || .is_dispatcher }) is export(:push-multi) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
-    push-QBlock-multi($*UNIT,$path,$value);
+    push-QBlock-multi($*UNIT,$path,$multi);
 }
 
-sub push-lexpad-multi(Str:D $path,Routine:D $value where { .multi || .is_dispatcher }) is export(:push-multi) {
+sub push-lexpad-multi(Str:D $path,$multi where { .multi || .is_dispatcher }) is export(:push-multi) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
-    push-QBlock-multi($*W.cur_lexpad,$path,$value);
+    push-QBlock-multi($*W.cur_lexpad,$path,$multi);
+}
+
+sub push-lexical-multi(Str:D $path, $multi where { .multi || .is_dispatcher } ) is export(:push-multi) {
+    if get-lexpad($path) -> $existing {
+        push-multi($existing,$multi);
+    }
+    elsif get-lexical($path) -> $existing {
+        if $existing.is_dispatcher {
+            my $new := $existing.clone().derive_dispatcher();
+            push-multi($new,$multi);
+            push-lexpad-multi($path,$new);
+        }
+    }
+    else {
+        push-lexpad-multi($path,$multi);
+    }
 }
 
 sub get-unit(Str:D $path) is export(:get-symbols) {
@@ -235,12 +259,15 @@ sub get-lexpad(Str:D $path) is export(:get-symbols) {
 }
 
 # doesn't work yeet
-sub get-lexical(Str:D $path)  {
+sub get-lexical(Str:D $path) is export(:get-symbols) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
-    my $tmp := nqp::split('::',$path);
-     $*W.find_symbol($tmp);
+    die "cannot have '::' in get-lexical lookup (got '$path'). Patch needed!" if $path ~~ /'::'/;
+    # this should work with :: but it doesn't
+    try {
+        return $*W.find_symbol(nqp::split('::',$path));
+    }
+    Nil;
 }
-
 
 sub mixin_LANG($lang = 'MAIN',:$grammar,:$actions) is export(:mixin_LANG){
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;

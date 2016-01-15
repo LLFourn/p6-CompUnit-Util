@@ -24,9 +24,11 @@ Utility functions for introspecting `CompUnit`s and re-exporting their symbols.
 - [Symbol Getting](#symbol-getting)
   - [get-unit](#get-unit)
   - [get-lexpad](#get-lexpad)
+  - [get-lexical](#get-lexical)
 - [Push Multi](#push-multi)
   - [push-unit-multi](#push-unit-multi)
   - [push-lexpad-multi](#push-lexpad-multi)
+  - [push-lexical-multi](#push-lexical-multi)
 - [Slangs](#slangs)
   - [mixin_LANG](#mixin_lang)
 
@@ -290,15 +292,20 @@ BEGIN note get-unit('EXPORT::DEFAULT::&foo') === &foo; #-> True
 ## get-lexpad
 `(Str:D $path)`
 
-The same as `get-unit` but looks for the symbol in the lexical scope
+The same as `get-unit` but looks for the symbol in the lexpad
 being compiled.
+
+## get-lexical
+`(Str:D $name)`
+
+Like `get-lexpad` but does a full lexical lookup. At the moment it can
+only take a single `$name` with no `::`.
 
 ## Push Multi
 
 These routines help you construct `multi` dispatchers *candidate by
 candidate* in a procedural manner. Useful when you want to construct a
 trait that adds a multi candidate each time it's called.
-
 
 ### push-unit-multi
 `(Str:D $path,Routine:D $mutli where { .multi || .is_dispatcher } )`
@@ -318,19 +325,32 @@ multi baz(Int) is one-letter-export { say "baz" }
 ...
 # use SillyModule;
 
-b("string"); #-> bare
+b("string"); #-> bar
 b(1) #-> baz
 
 ```
 
 Takes `$multi` and pushses it onto a dispatcher located at `$path`. If
-one doesn't exist it will be created.
+one doesn't exist it will be created. You can pass a `proto` instead
+of a multi but only when `$path` is empty (ie only the first time). It
+will become the dispatcher for any further calls.
 
 ### push-lexpad-multi
+
+`(Str:D $path,Routine:D $mutli where { .multi || .is_dispatcher } )`
 
 The same as `push-unit-multi` but pushes onto a symbol in the lexical
 scope currently being compiled.
 
+### push-lexical-multi
+
+`(Str:D $name,Routine:D $mutli where { .multi || .is_dispatcher } )`
+
+The smart version of `push-lexpad-multi`. If it doesn't find a
+dispatcher in the current lexpad it will do a lexical lookup for one
+of the same `$name`. If it finds one it clones it, installs it in the
+current lexpad and pushes `$multi` onto it. Like
+[get-lexical](#get-lexical), it can't take a `$name` with `::` in it.
 
 ## Slangs
 
