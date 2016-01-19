@@ -52,6 +52,26 @@ automatically. If the `$handle` you pass is not a defined `CompUnit`
 or `CompUnit::Handle`, `&find-loaded` will be used to search for an
 loaded compunit matching it.
 
+*warning* because of RT
+ [#127302](https://rt.perl.org/Public/Bug/Display.html?id=127302), you
+ should be very careful of manipulating `CompUnit` and
+ `CompUnit::Handle` objects within `BEGIN` blocks. `CompUnit::Handle`s
+ cannot be serialized at the moment. For example,
+
+``` perl6
+use CompUnit::Util :load;
+BEGIN load('SomeModule');
+```
+should be written as
+
+``` perl6
+use CompUnit::Util :load;
+BEGIN {
+    load('SomeModule');
+    Nil;
+}
+```
+
 ### load
 `(Str:D $short-name,*%opts --> CompUnit:D)`
 

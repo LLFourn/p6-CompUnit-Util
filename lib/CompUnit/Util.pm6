@@ -101,7 +101,7 @@ sub descend-WHO($WHO is copy,Str:D $path) is export(:who){
     }
 }
 
-sub set-in-WHO($WHO is copy,$path,$value) is export(:who) {
+sub set-in-WHO($WHO is copy,$path,$value --> Nil) is export(:who) {
     use nqp;
     my @parts = $path.split('::');
     while @parts.shift -> $part {
@@ -152,13 +152,14 @@ sub capture-import($handle is copy, *@pos, *%named --> Hash:D) is export(:captur
     return %sym;
 }
 
-sub re-export($handle is copy)  is export(:re-export) {
+sub re-export($handle is copy --> Nil)  is export(:re-export) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     $handle .= &handle;
     get-unit('EXPORT').WHO.merge-symbols($handle.export-package);
+    Nil;
 }
 
-sub re-exporthow($handle is copy) is export(:re-export){
+sub re-exporthow($handle is copy --> Nil) is export(:re-export){
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     $handle .= &handle;
 
@@ -166,45 +167,52 @@ sub re-exporthow($handle is copy) is export(:re-export){
         my $my-WHO := vivify-QBlock-pkg($*UNIT,'EXPORTHOW').WHO;
         $my-WHO.merge-symbols($target-WHO);
     }
+    Nil;
 }
 
-sub steal-export-sub($handle is copy) is export(:re-export){
+sub steal-export-sub($handle is copy --> Nil) is export(:re-export){
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     $handle .= &handle;
     if my $EXPORT  = $handle.export-sub {
         set-unit('&EXPORT',$EXPORT);
     }
+    Nil;
 }
 
-sub steal-globalish($handle is copy) is export(:re-export){
+sub steal-globalish($handle is copy --> Nil) is export(:re-export){
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     $handle .= &handle;
     my $target = $handle.globalish-package;
     get-unit('GLOBALish').WHO.merge-symbols($target.WHO);
+    Nil;
 }
 
-sub re-export-everything($_ is copy) is export(:re-export) {
+sub re-export-everything($_ is copy --> Nil) is export(:re-export) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     $_ .= &handle;
     .&re-export;
     .&re-exporthow;
     .&steal-export-sub;
     .&steal-globalish;
+    Nil;
 }
 
-sub set-unit(Str:D $path,Mu $value) is export(:set-symbols) {
+sub set-unit(Str:D $path,Mu $value --> Nil) is export(:set-symbols) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     set-in-QBlock($*UNIT,$path,$value);
+    Nil;
 }
 
-sub set-lexpad(Str:D $path,Mu $value) is export(:set-symbols) {
+sub set-lexpad(Str:D $path,Mu $value --> Nil) is export(:set-symbols) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     set-in-QBlock($*W.cur_lexpad,$path,$value);
+    Nil;
 }
 
 
-sub push-multi(Routine:D $target where { .is_dispatcher },Routine:D $r) {
+sub push-multi(Routine:D $target where { .is_dispatcher },Routine:D $r --> Nil) {
     $target.add_dispatchee(nqp::decont($r));
+    Nil;
 }
 
 sub push-QBlock-multi(Mu \qblock,$path,$multi is copy) {
@@ -220,19 +228,19 @@ sub push-QBlock-multi(Mu \qblock,$path,$multi is copy) {
     }
 }
 
-subset MultiOrDispatcher of Routine ;
-
-sub push-unit-multi(Str:D $path, $multi where { .multi || .is_dispatcher }) is export(:push-multi) {
+sub push-unit-multi(Str:D $path, $multi where { .multi || .is_dispatcher } --> Nil) is export(:push-multi) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     push-QBlock-multi($*UNIT,$path,$multi);
+    Nil;
 }
 
-sub push-lexpad-multi(Str:D $path,$multi where { .multi || .is_dispatcher }) is export(:push-multi) {
+sub push-lexpad-multi(Str:D $path,$multi where { .multi || .is_dispatcher } --> Nil) is export(:push-multi) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     push-QBlock-multi($*W.cur_lexpad,$path,$multi);
+    Nil;
 }
 
-sub push-lexical-multi(Str:D $path, $multi where { .multi || .is_dispatcher } ) is export(:push-multi) {
+sub push-lexical-multi(Str:D $path, $multi where { .multi || .is_dispatcher } --> Nil) is export(:push-multi) {
     if get-lexpad($path) -> $existing {
         push-multi($existing,$multi);
     }
@@ -246,6 +254,7 @@ sub push-lexical-multi(Str:D $path, $multi where { .multi || .is_dispatcher } ) 
     else {
         push-lexpad-multi($path,$multi);
     }
+    Nil;
 }
 
 sub get-unit(Str:D $path) is export(:get-symbols) {
@@ -258,7 +267,6 @@ sub get-lexpad(Str:D $path) is export(:get-symbols) {
     return get-in-QBblock($*W.cur_lexpad(),$path);
 }
 
-# doesn't work yeet
 sub get-lexical(Str:D $path) is export(:get-symbols) {
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     die "cannot have '::' in get-lexical lookup (got '$path'). Patch needed!" if $path ~~ /'::'/;
@@ -269,7 +277,7 @@ sub get-lexical(Str:D $path) is export(:get-symbols) {
     Nil;
 }
 
-sub mixin_LANG($lang = 'MAIN',:$grammar,:$actions) is export(:mixin_LANG){
+sub mixin_LANG($lang = 'MAIN',:$grammar,:$actions --> Nil) is export(:mixin_LANG){
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
 
     if $grammar !=== Any {
@@ -282,6 +290,7 @@ sub mixin_LANG($lang = 'MAIN',:$grammar,:$actions) is export(:mixin_LANG){
     }
     # needed so it will work in EVAL
     set-lexpad('%?LANG',$*W.p6ize_recursive(%*LANG));
+    Nil;
 }
 
 
