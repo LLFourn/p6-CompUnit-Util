@@ -280,9 +280,8 @@ Inserts name/value pairs into the present `UNIT::EXPORT` under `$tag`.
 # like is export, but prefixes the the exported name with 'fun-'
 sub trait_mod:<is>(Routine:D $r, :$export-fun!) {
     my $exported-name = '&fun-' ~ $r.name;
-    set-unit("EXPORT::DEFAULT::{$exported-name}',$r);
-    {};
-}
+    set-unit("EXPORT::DEFAULT::{$exported-name}",$r);
+    {};}
 ```
 
 Inserts the `$value` at `$path` in `UNIT` of the currently compiling
@@ -343,7 +342,7 @@ multi bar(Str) is one-letter-export { say "bar" }
 multi baz(Int) is one-letter-export { say "baz" }
 
 ...
-# use SillyModule;
+use SillyModule;
 
 b("string"); #-> bar
 b(1) #-> baz
