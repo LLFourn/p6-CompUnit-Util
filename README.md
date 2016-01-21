@@ -324,10 +324,12 @@ only take a single `$name` with no `::`.
 
 These routines help you construct `multi` dispatchers *candidate by
 candidate* in a procedural manner. Useful when you want to construct a
-trait that adds a multi candidate each time it's called.
+trait that adds a multi candidate each time it's called. Parameters
+marked `$multi` can be any `Routine:D`,but if you pass a dispatcher it
+will behave differently.
 
 ### push-unit-multi
-`(Str:D $path,Routine:D $mutli where { .multi || .is_dispatcher } )`
+`(Str:D $path,Routine:D $mutli)`
 
 ``` perl6
 ## lib/SillyModule.pm6
@@ -356,14 +358,14 @@ will become the dispatcher for any further calls.
 
 ### push-lexpad-multi
 
-`(Str:D $path,Routine:D $mutli where { .multi || .is_dispatcher } )`
+`(Str:D $path,Routine:D $mutli)`
 
 The same as `push-unit-multi` but pushes onto a symbol in the lexical
 scope currently being compiled.
 
 ### push-lexical-multi
 
-`(Str:D $name,Routine:D $mutli where { .multi || .is_dispatcher } )`
+`(Str:D $name,Routine:D $mutli)`
 
 The smart version of `push-lexpad-multi`. If it doesn't find a
 dispatcher in the current lexpad it will do a lexical lookup for one
