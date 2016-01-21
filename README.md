@@ -153,7 +153,7 @@ symbols the compunit would export if it were `use`d.
 ``` perl6
 use CompUnit::Util :who;
 my package Example {};
-BEGIN set-in-who(Example.WHO,'Foo::Bar::Baz','win');
+BEGIN set-in-who(Example.WHO,'Foo::Bar::$Baz','win');
 
 say Example::Foo::Bar::<$Baz>; #-> win
 ```
