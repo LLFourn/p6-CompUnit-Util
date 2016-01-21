@@ -121,8 +121,7 @@ say at-unit('CompUnit::Util','$=pod');
 ```
 
 Gets a symbol from the `UNIT` scope of the compunit. If you want to do
-this at compile time while a compunit is loading see `get-unit`.
-[get-unit](#get-unit).
+this at compile time while a compunit is loading see [get-unit](#get-unit).
 
 ### unit-to-hash
 `($handle)`
