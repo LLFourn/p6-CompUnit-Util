@@ -10,8 +10,8 @@ Utility functions for introspecting `CompUnit`s and re-exporting their symbols.
   - [unit-to-hash](#unit-to-hash)
   - [capture-import](#capture-import)
 - [WHO Utilities](#who-utilities)
-  - [descend-WHO](#descend-WHO)
-  - [set-in-WHO](#set-in-WHO)
+  - [descend-WHO](#descend-who)
+  - [set-in-WHO](#set-in-who)
 - [Re-Exporting](#re-exporting)
   - [re-export](#re-export)
   - [re-exporthow](#re-exporthow)
@@ -153,7 +153,7 @@ symbols the compunit would export if it were `use`d.
 ``` perl6
 use CompUnit::Util :who;
 my package Example {};
-BEGIN set-in-who(Example.WHO,'Foo::Bar::$Baz','win');
+BEGIN set-in-WHO(Example.WHO,'Foo::Bar::$Baz','win');
 
 say Example::Foo::Bar::<$Baz>; #-> win
 ```
@@ -167,8 +167,8 @@ might not exist yet. Only useful outside the compunit being compiled.
 ``` perl6
 use CompUnit::Util :who;
 my package Example {};
-BEGIN set-in-who(Example.WHO,'Foo::Bar::Baz','win');
-BEGIN note descend-who(Example.WHO,'Foo::Bar::Baz'); #-> win
+BEGIN set-in-WHO(Example.WHO,'Foo::Bar::Baz','win');
+BEGIN note descend-WHO(Example.WHO,'Foo::Bar::Baz'); #-> win
 ```
 
 Convenience routine for getting a symbol's value with a path from a
