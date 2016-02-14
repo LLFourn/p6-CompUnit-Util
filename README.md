@@ -335,7 +335,7 @@ onto an existing dispatcher.
 Adds the `$candidate` onto `$target`.
 
 ``` perl6
-use CompUnit::Util :push-multi
+use CompUnit::Util :push-multi;
 multi foo('one') { 'one' }
 multi foo('two') { 'two' }
 
