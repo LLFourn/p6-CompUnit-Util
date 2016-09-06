@@ -25,8 +25,9 @@ sub set-in-QBlock(Mu \qblock is raw,$path,Mu $value) {
     if @parts {
         my $pkg = vivify-QBlock-pkg(qblock,$first);
         set-in-WHO($pkg.WHO,@parts.join('::'),$value);
-     } else {
+    } else {
         $*W.install_lexical_symbol(qblock,$first,$value);
+        Nil; # needed otherwise the NQPMu from install_lexical_symbol get sunk
     }
     Nil;
 }
@@ -117,6 +118,7 @@ sub set-in-WHO($WHO is copy,$path,$value --> Nil) is export(:who) {
             $WHO = $WHO.{$part}.WHO;
         }
     }
+    Nil;
 }
 
 sub unit-to-hash($handle? is copy) is export(:unit-to-hash) {
