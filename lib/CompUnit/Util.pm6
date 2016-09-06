@@ -256,6 +256,7 @@ sub push-lexpad-multi(Str:D $path,$multi --> Nil) is export(:push-multi) {
 }
 
 sub push-lexical-multi(Str:D $path, $multi --> Nil) is export(:push-multi) {
+    die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     if get-lexpad($path) -> $existing {
         push-multi($existing,$multi);
     }
