@@ -329,13 +329,8 @@ marked `$multi` can be any `Routine:D`. If you pass a dispatcher it
 will just use it as the dispatcher or die if you are trying to push
 onto an existing dispatcher.
 
-**warning** pushing a normal routine onto a dispatcher will work but if
-  one doesn't exist, CompUnit::Util will try and vivify one for
-  you. This hits some sort of precompilation bug which looks like:
-
-`Missing serialize REPR function for REPR MVMContext`
-
-So try and avoid doing that.
+If you try and push a non-multi/dispatcher onto an empty slot it will
+not vivify one for you.
 
 ### push-multi
 `(Routine:D $target where { .is_dispatcher },Routine:D $candidate)`

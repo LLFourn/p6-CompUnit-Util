@@ -230,11 +230,12 @@ sub push-QBlock-multi(Mu \qblock,$path,$multi is copy) {
             when .multi { .dispatcher }
             when .is_dispatcher { $multi }
             default {
-                # not multi or dispatcher have to create one to attach to
-                # XXX: this results in Missing serialize REPR function for REPR MVMContext
-                my $new_proto = (my proto anon (|) {*}).clone;
-                push-multi($new_proto,$multi);
-                $new_proto;
+                ## not multi or dispatcher have to create one to attach to
+                ## XXX: this results in Missing serialize REPR function for REPR MVMContext
+                # my $new_proto = (my proto anon (|) {*}).clone;
+                # push-multi($new_proto,$multi);
+                # $new_proto;
+                die "can't push a non-multi sub onto a non-existent routine";
             }
         }
         set-in-QBlock(qblock,$path,$install);
