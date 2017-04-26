@@ -184,7 +184,7 @@ sub steal-globalish($handle is copy --> Nil) is export(:re-export){
     die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
     $handle .= &handle;
     my $target = $handle.globalish-package;
-    get-unit('GLOBALish').WHO.merge-symbols($target.WHO);
+    get-unit('GLOBALish').WHO.merge-symbols($target);
     Nil;
 }
 
