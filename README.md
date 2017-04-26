@@ -38,8 +38,8 @@ features like 're-exporting' which don't exist in rakudo yet.
 
 The API should now be stable enough to use.
 
-**warning** this module relies on unspec'd rakudo internals and could
-break without warning
+**warning** this module relies on unspec'd rakudo internals and can
+(and has and will) break without warning.
 
 ## CompUnit Utilities
 
@@ -208,6 +208,7 @@ Merges the `EXPORTHOW` from `$handle` into the present
 exist but it won't clobber it if it does.
 
 **this routine can only be called at `BEGIN` time**
+**warning** Using this is throwing up warnings for some reason.
 
 ### steal-export-sub
 `($handle)`
