@@ -291,21 +291,5 @@ sub get-lexical(Str:D $path) is export(:get-symbols) {
     Nil;
 }
 
-sub mixin_LANG($lang = 'MAIN',:$grammar,:$actions --> Nil) is export(:mixin_LANG){
-    die "{&?ROUTINE.name} can only be called at BEGIN time" unless $*W;
-
-    if $grammar !=== Any {
-        %*LANG{$lang} := %*LANG{$lang}.^mixin($grammar);
-    }
-
-    if $actions !=== Any {
-        my $actions-key = $lang ~ '-actions';
-        %*LANG{$actions-key} := %*LANG{$actions-key}.^mixin($actions);
-    }
-    # needed so it will work in EVAL
-    set-lexpad('%?LANG',$*W.p6ize_recursive(%*LANG));
-    Nil;
-}
-
 
 =pod This is just some pod to test at-unit('CompUnit::Util','$=pod');
