@@ -65,13 +65,11 @@ sub find-loaded($match --> CompUnit) is export(:find-loaded)  {
 }
 
 sub all-loaded is export(:all-loaded){
-    my $repo = $*REPO;
-    do repeat { |$repo.loaded } while $repo .= next-repo;
+    $*REPO.repo-chain.map(*.loaded).flat;
 }
 
 sub all-repos is export(:all-repos) {
-    my $repo = $*REPO;
-    do repeat { $repo } while $repo .= next-repo;
+    $*REPO.repo-chain;
 }
 
 sub at-unit($handle is copy,Str:D $path) is export(:at-unit){
