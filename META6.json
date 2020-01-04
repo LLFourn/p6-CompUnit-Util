@@ -10,5 +10,5 @@
     },
     "depends" : [],
     "resources" : [],
-    "source-url" : "git://github.com/LLFourn/p6-CompUnit-Util"
+    "source-url" : "git://github.com/LLFourn/p6-CompUnit-Util.git"
 }
